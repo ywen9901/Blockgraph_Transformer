@@ -1,4 +1,4 @@
-from model.static import scripts, designdict, stackdict, curstack
+from model.static import designdict, stackdict, curstack
 
 from fastapi import APIRouter
 

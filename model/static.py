@@ -2,9 +2,8 @@
 
 from .example import infodict
 
-global tfidx, scripts
+global tfidx
 tfidx = {'block': 8, 'port': 9, 'link': 5, 'slot': 13, 'group': 0}
-scripts = []
 
 global stackidx, designdict, stackdict, curstack, stackloc
 stackidx = {'stack': 1, 'design': 1}

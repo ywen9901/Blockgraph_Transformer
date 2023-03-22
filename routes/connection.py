@@ -1,26 +1,28 @@
-from internal.initialization import get_new_id
-from model.static import scripts
+from internal.initialization import get_new_uuid, get_new_label
 
 from fastapi import APIRouter
 
 router = APIRouter()
 
 @router.post("/connection/", tags=["connection"])
-def add_connection(blockdict, linkdict, containerdict, groupdict, targets=0): # targets = [blockname, linkname]
+def add_connection(blockdict, linkdict, containerdict, groupdict, labeldict, targets=0): # targets = [blockname, linkname]
     # for interface
     tmp = input('Which connection do you want to add? (format: blockname, linkname) ')
     targets = tmp.split(', ')
     
-    newportid = get_new_id('port')
-    newslotid = get_new_id('slot')
+    newportid = get_new_uuid()
+    newportlabel = get_new_label('port')
+    labeldict[newportid] = newportlabel
+
+    newslotid = get_new_uuid()
+    newslotlabel = get_new_label('slot')
+    labeldict[newslotid] = newslotlabel
 
     blockdict[targets[0]][newportid] = (targets[1], newslotid)
     linkdict[targets[1]][newslotid] = (targets[0], newportid)
 
-    scripts.append('add_connection')
-
 @router.delete("/connection/{}", tags=["connection"])
-def del_connection(blockdict, linkdict, containerdict, groupdict, targets=0): # targets = [blockname, linkname]
+def del_connection(blockdict, linkdict, containerdict, groupdict, labeldict, targets=0): # targets = [blockname, linkname]
     # for interface
     tmp = input('Which connection do you want to delete? (format: blockname, linkanme) ')
     targets = tmp.split(', ')
@@ -36,5 +38,5 @@ def del_connection(blockdict, linkdict, containerdict, groupdict, targets=0): # 
     
     del blockdict[targets[0]][portid]
     del linkdict[targets[1]][slotid]
-
-    scripts.append('del_connection')
+    del labeldict[portid]
+    del labeldict[slotid]

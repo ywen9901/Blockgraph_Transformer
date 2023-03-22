@@ -1,5 +1,5 @@
 from internal.initialization import get_new_stackid
-from model.static import scripts, designdict, stackdict, curstack, stackloc
+from model.static import designdict, stackdict, curstack, stackloc
 
 from fastapi import APIRouter
 

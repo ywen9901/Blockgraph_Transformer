@@ -1,4 +1,4 @@
-from model.static import scripts
+from internal.initialization import get_new_uuid, get_new_label
 
 from copy import deepcopy
 from fastapi import APIRouter
@@ -6,12 +6,7 @@ from fastapi import APIRouter
 router = APIRouter()
 
 @router.post("/container/", tags=["container"])
-def add_block_container(blockdict, linkdict, containerdict, groupdict, targets=0):
-
-    # for interface
-    tmp = input('Please input the information: (format: parent block, child block 1, child block 2, ...) ')
-    targets = tmp.split(', ')
-
+def add_block_container(blockdict, linkdict, containerdict, groupdict, labeldict, targets=0):
     parentblock = targets[0]
     childrenblocklist = targets[1:]
     # childrenblocklist = childrenblock.split(', ')
@@ -19,139 +14,92 @@ def add_block_container(blockdict, linkdict, containerdict, groupdict, targets=0
 
     tmpblockdict = {}
     tmplinkdict = {}
-    newlinkid = get_new_id('link')
+    newlinkid = get_new_uuid()
+    newlinklabel = get_new_label('link')
+    labeldict[newlinkid] = newlinklabel
     tmplinkdict[newlinkid] = {}
 
     for block in childrenblocklist:
         tmpblockdict[block] = {}
-        newslotid = get_new_id('slot')
-        newportid = get_new_id('port')
+        newslotid = get_new_uuid()
+        newslotlabel = get_new_label('slot')
+        labeldict[newslotid] = newslotlabel
+        newportid = get_new_uuid()
+        newportlabel = get_new_label('port')
+        labeldict[newportid] = newportlabel
         tmpblockdict[block][newportid] = (newlinkid, newslotid)
         tmplinkdict[newlinkid][newslotid] = (block, newportid)
     
     containerdict[parentblock] = {'blockdict': tmpblockdict, 'linkdict': tmplinkdict}
-    scripts.append('add_block_container')
 
 ##############
 # Conflict
 ##############
 
-# @router.post("/container/", tags=["container"])
-# def add_link_container(blockdict, linkdict, containerdict, groupdict, targets=0):
+@router.post("/container/", tags=["container"])
+def add_link_container(blockdict, linkdict, containerdict, groupdict, labeldict, targets=0):
+    parentlink = targets[0]
+    innerblocks = targets[1:]
+    # childrenblocklist = innerblocks.split(', ')
+    if parentlink in list(linkdict.keys()):
+        outterslot = list(linkdict[parentlink].keys())
+    else:
+        newslotid1 = get_new_uuid()
+        newslotlabel1 = get_new_label('slot')
+        labeldict[newslotid1] = newslotlabel1
+        newslotid2 = get_new_uuid()
+        newslotlabel2 = get_new_label('slot')
+        labeldict[newslotid2] = newslotlabel2
+        outterslot = [newslotid1, newslotid2]
 
-#     # for interface
-#     tmp = input('Please input the information: (format: parent link, child block 1, child block 2, ...) ')
-#     targets = tmp.split(', ')
+    tmpblockdict = {}
+    tmplinkdict = {}
+    newlinkid1 = get_new_uuid()
+    newlinklabel1 = get_new_label('link')
+    labeldict[newlinkid1] = newlinklabel1
+    newlinkid2 = get_new_uuid()
+    newlinklabel2 = get_new_label('link')
+    labeldict[newlinkid2] = newlinklabel2
+    tmplinkdict[newlinkid1] = {}
 
-#     parentlink = targets[0]
-#     innerblocks = targets[1:]
-#     # childrenblocklist = innerblocks.split(', ')
-#     if parentlink in list(linkdict.keys()):
-#         outterslot = list(linkdict[parentlink].keys())
-#     else:
-#         newslotid1 = get_new_id('slot')
-#         newslotid2 = get_new_id('slot')
-#         outterslot = [newslotid1, newslotid2]
+    for block in innerblocks:
+        tmplinkdict[newlinkid2] = {}
+        tmpblockdict[block] = {}
 
-#     tmpblockdict = {}
-#     tmplinkdict = {}
-#     newlinkid1 = get_new_id('link')
-#     newlinkid2 = get_new_id('link')
-#     tmplinkdict[newlinkid1] = {}
+        if innerblocks.index(block) == 0: # first block
+            tmplinkdict[newlinkid1][outterslot[0]] = ('null', 'null')
 
-#     for block in innerblocks:
-#         tmplinkdict[newlinkid2] = {}
-#         tmpblockdict[block] = {}
+        newpid1 = get_new_uuid()
+        newpid2 = get_new_uuid()
+        newsid1 = get_new_uuid()
+        newsid2 = get_new_uuid()
+        newplabel1 = get_new_label('port')
+        newplabel2 = get_new_label('port')
+        newslabel1 = get_new_label('slot')
+        newslabel2 = get_new_label('slot')
+        labeldict[newpid1] = newplabel1
+        labeldict[newpid2] = newplabel2
+        labeldict[newsid1] = newslabel1
+        labeldict[newsid2] = newslabel2
+        tmpblockdict[block][newpid1] = (newlinkid1, newsid1)
+        tmpblockdict[block][newpid2] = (newlinkid2, newsid2)
+        tmplinkdict[newlinkid1][newsid1] = (block, newpid1)
+        tmplinkdict[newlinkid2][newsid2] = (block, newpid2)
 
-#         if innerblocks.index(block) == 0: # first block
-#             tmplinkdict[newlinkid1][outterslot[0]] = ('null', 'null')
-
-#         newpid1 = get_new_id('port')
-#         newpid2 = get_new_id('port')
-#         newsid1 = get_new_id('slot')
-#         newsid2 = get_new_id('slot')
-#         tmpblockdict[block][newpid1] = (newlinkid1, newsid1)
-#         tmpblockdict[block][newpid2] = (newlinkid2, newsid2)
-#         tmplinkdict[newlinkid1][newsid1] = (block, newpid1)
-#         tmplinkdict[newlinkid2][newsid2] = (block, newpid2)
-
-#         if innerblocks.index(block) == len(innerblocks) - 1: # last block
-#             tmplinkdict[newlinkid2][outterslot[1]] = ('null', 'null')
+        if innerblocks.index(block) == len(innerblocks) - 1: # last block
+            tmplinkdict[newlinkid2][outterslot[1]] = ('null', 'null')
         
-#         newlinkid1 = newlinkid2
-#         newlinkid2 = get_new_id('link')
+        newlinkid1 = newlinkid2
+        newlinkid2 = get_new_uuid()
+        newlinklabel2 = get_new_label('link')
+        labeldict[newlinkid2] = newlinklabel2
 
-#     containerdict[parentlink] = (tmpblockdict, tmplinkdict)
-#     scripts.append('add_link_container')
+    containerdict[parentlink] = (tmpblockdict, tmplinkdict)
 
 @router.delete("/container/", tags=["container"])
-def del_container(blockdict, linkdict, containerdict, groupdict, containerid=0):
-
-    # for interface
-    containerid = input('Which container do you want to delete? ')
-
+def del_container(blockdict, linkdict, containerdict, groupdict, labeldict, containerid=0):
     try:
         del containerdict[containerid]
+        del labeldict[containerid]
     except:
         return -1
-    
-    scripts.append('del_container')
-
-@router.put("/container/{blockid}", tags=["container"])
-def block_expansion(blockdict, linkdict, containerdict, groupdict, blockid=0):
-    links = []
-
-    # for interface
-    blockid = input('Which block do you want to expand? ')
-
-    # find the links connect to the block
-    for _, portinfo in blockdict[blockid].items():
-        links.append(portinfo[0])
-    
-    # update blockdict
-    for block, blockinfo in containerdict[blockid]['blockdict'].items():
-        if block != 'null':
-            tmp = deepcopy(blockinfo) # won't update the values in containerdict
-            blockdict[block] = tmp
-    del blockdict[blockid]
-
-    # update linkdict
-    ## container link
-    newlinkitem = deepcopy(containerdict[blockid]['linkdict'])
-    for link, linkinfo in newlinkitem.items():
-        for slot, slotinfo in linkinfo.items():
-            if slotinfo[0] == 'null':
-                del newlinkitem[link][slot]
-                linkdict[link] = newlinkitem[link]
-                break
-    
-    ## original link
-    linkinfo = containerdict[blockid]['linkdict'].values()
-    linkinfo = list(linkinfo)[0]
-    newblocktuple = []
-    for _, slotinfo in linkinfo.items():
-        if slotinfo[0] != 'null':from copy import deepcopy
-
-@router.put("/container/{linkid}", tags=["container"])
-def link_expansion(blockdict, linkdict, containerdict, groupdict, linkid=0):
-
-    # for interface
-    linkid = input('Which link do you want to expand? ')
-
-    for block, blockinfo in containerdict[linkid]['blockdict'].items():
-        blockdict[block] = deepcopy(blockinfo)
-
-    for _, linkinfo in containerdict[linkid]['linkdict'].items():
-        newlinkid = get_new_id('link')
-        linkdict[newlinkid] = {}
-        for slot, slotinfo in linkinfo.items():
-            if slotinfo == ('null', 'null'):
-                linkdict[newlinkid][slot] = deepcopy(linkdict[linkid][slot])
-            else:
-                linkdict[newlinkid][slot] = deepcopy(slotinfo)
-            block = linkdict[newlinkid][slot][0]
-            port = linkdict[newlinkid][slot][1]
-            blockdict[block][port] = (newlinkid, slot)
-    
-    del linkdict[linkid]
-    globalvar.scripts.append('link_expansion')

@@ -1,5 +1,4 @@
-from internal.initialization import get_new_id
-from model.static import scripts
+from internal.initialization import get_new_uuid, get_new_label
 
 from fastapi import APIRouter
 
@@ -16,20 +15,22 @@ def get_block(blockid: str):
     pass
 
 @router.post("/block/", tags=["block"])
-def add_block(blockdict, linkdict, containerdict, groupdict, target=0):
-    blockid = get_new_id('block')
+def add_block(blockdict, linkdict, containerdict, groupdict, labeldict, target=0):
+    blockid = get_new_uuid()
+    blocklabel = get_new_label('block')
     blockdict[blockid] = {}
-
-    scripts.append('add_block')
-    return blockid
+    labeldict[blockid] = blocklabel
+    return blocklabel
 
 @router.delete("/block/", tags=["block"])
-def del_block(blockdict, linkdict, containerdict, groupdict, blockid=0):
+def del_block(blockdict, linkdict, containerdict, groupdict, labeldict, blockid=0):
     # for interface
     blockid = input('Which block do you want to delete? ')
 
     # update linkdict
     for _, portinfo in blockdict[blockid].items():
+        if portinfo[0] == 'null':
+            continue
         del linkdict[portinfo[0]][portinfo[1]]
     
     # update containerdict
@@ -48,7 +49,7 @@ def del_block(blockdict, linkdict, containerdict, groupdict, blockid=0):
             tmp.append(gp)
     for gp in tmp:
         del groupdict[gp]
+        del labeldict[gp]
 
     del blockdict[blockid]
-
-    scripts.append('del_block')
+    del labeldict[blockid]
