@@ -1,4 +1,4 @@
-REQUIREMENT:
+INSTALL:
 	pip install "fastapi[all]"
 
 RUN:
