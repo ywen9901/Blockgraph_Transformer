@@ -1,5 +1,5 @@
 from internal.initialization import get_new_id
-from .static import scripts
+from model.static import scripts
 
 from fastapi import APIRouter
 
@@ -7,10 +7,12 @@ router = APIRouter()
 
 @router.get("/block/", tags=["block"])
 def get_blocks():
+    # return blockdict
     pass
 
 @router.get("/block/{blockid}", tags=["block"])
 def get_block(blockid: str):
+    # return certain block
     pass
 
 @router.post("/block/", tags=["block"])

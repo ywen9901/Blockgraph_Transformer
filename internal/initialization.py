@@ -1,4 +1,4 @@
-from ...main import tfidx, scripts
+from model.static import tfidx, scripts, stackidx
 
 def get_new_id(type):
     newid =  '_' + type[0] + str(tfidx[type])
@@ -19,3 +19,9 @@ def set_design(infodict): ##### test all functions!!!!!
     groupdict = infodict['design']['groupdict']
 
     eval(UIaction)(blockdict, linkdict, containerdict, groupdict, target)
+
+def get_new_stackid(type):
+    newid = type[0].upper() + str(globalvar.stackidx[type])
+    stackidx[type] += 1
+
+    return newid

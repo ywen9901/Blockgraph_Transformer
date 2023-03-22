@@ -1,6 +1,6 @@
 # Global var for apis
 
-from model.example import infodict
+from .example import infodict
 
 global tfidx, scripts
 tfidx = {'block': 8, 'port': 9, 'link': 5, 'slot': 13, 'group': 0}

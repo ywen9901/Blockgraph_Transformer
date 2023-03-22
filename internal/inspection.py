@@ -1,4 +1,4 @@
-from ...main import scripts
+from model.static import scripts
 
 def get_link_childrenblocks(linkdict, linkid):
     '''
