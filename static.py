@@ -1,5 +1,4 @@
-from fastapi import FastAPI
-app = FastAPI()
+# Global var for apis
 
 from model.example import infodict
 

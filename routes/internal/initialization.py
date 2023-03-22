@@ -1,4 +1,4 @@
-from ..setup import tfidx, scripts
+from ...main import tfidx, scripts
 
 def get_new_id(type):
     newid =  '_' + type[0] + str(tfidx[type])

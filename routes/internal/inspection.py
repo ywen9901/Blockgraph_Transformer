@@ -1,4 +1,4 @@
-from ..setup import scripts
+from ...main import scripts
 
 def get_link_childrenblocks(linkdict, linkid):
     '''
