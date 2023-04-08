@@ -1,45 +1,46 @@
 from internal.initialization import get_new_stackid
-from model.static import designdict, stackdict, curstack, stackloc
+
+from model.static import History
 
 from fastapi import APIRouter
 
 router = APIRouter()
 
 @router.post("/history/", tags=["history"])
-def add_stack(id=0):
+def add_stack(history: History, id=0):
     newid = get_new_stackid('stack')
-    stackdict[newid] = []
-    stackdict[newid].append(stackloc[curstack])
-    stackloc[newid] = stackloc[curstack]
-    curstack = newid
+    history.stackdict[newid] = []
+    history.stackdict[newid].append(history.stackloc[history.curstack])
+    history.stackloc[newid] = history.stackloc[history.curstack]
+    history.curstack = newid
 
 @router.delete("/history/", tags=["history"])
-def del_stack(stackid=0):
+def del_stack(history: History, stackid=0):
     # for interface
     stackid = input('Which stack do you want to delete? ')
 
     # delete all designs in this stack (execpt stack[0])
-    for design in stackdict[stackid][1:]:
-        del designdict[design]
+    for design in history.stackdict[stackid][1:]:
+        del history.designdict[design]
 
     # update stack pointer if needed
-    if curstack == stackid:
-        stacklist = list(stackdict.keys())
-        if stacklist.index(curstack) - 1 < 0:
-            curstack = stacklist[stacklist.index(curstack) + 1]
+    if history.curstack == stackid:
+        stacklist = list(history.stackdict.keys())
+        if stacklist.index(history.curstack) - 1 < 0:
+            history.curstack = stacklist[stacklist.index(history.curstack) + 1]
         else:
-            curstack = stacklist[stacklist.index(curstack) - 1]
+            history.curstack = stacklist[stacklist.index(history.curstack) - 1]
     
-    del stackdict[stackid]
-    del stackloc[stackid]
+    del history.stackdict[stackid]
+    del history.stackloc[stackid]
 
 @router.put("/history/{stackid}", tags=["history"])
-def swt_stack(stackid=0):    
+def swt_stack(history: History, stackid=0):    
     # for interface
     stackid = input('Which stack do you want to switch to? ')
 
     try:
-        stackdict[stackid]
-        curstack = stackid
+        history.stackdict[stackid]
+        history.curstack = stackid
     except:
         return -1

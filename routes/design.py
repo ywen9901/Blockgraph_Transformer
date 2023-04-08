@@ -1,23 +1,23 @@
-from model.static import designdict, stackdict, curstack
+from model.static import History
 
 from fastapi import APIRouter
 
 router = APIRouter()
 
-@router.post("/design/", tags=["design"])
-def add_design(id=0):
+@router.post("/design", tags=["design"])
+def add_design(history: History, id=0):
     try:
-        designdict[id] = {}
-        stackdict[curstack].append(id)
+        history.designdict[id] = {}
+        history.stackdict[history.curstack].append(id)
     except Exception as error:
         repr(error)
         return -1
 
-@router.delete("/design/", tags=["design"])
-def del_design(stackid=0, designid=0):
+@router.delete("/design/{designid}", tags=["design"])
+def del_design(history: History, stackid=0, designid=0):
     try:
-        stackdict[stackid].remove(designid)
-        designdict.pop(designid)
+        history.stackdict[stackid].remove(designid)
+        history.designdict.pop(designid)
     except Exception as error:
         repr(error)
         return -1
