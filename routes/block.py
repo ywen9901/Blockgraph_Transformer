@@ -1,23 +1,26 @@
 from internal.initialization import get_new_uuid, get_new_label
 from model.static import Design
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
 @router.post("/block", tags=["block"])
-def add_block(design: Design, target=0):
-    blockid = get_new_uuid()
-    blocklabel = get_new_label('block')
+def add_block(design: Design):
+    try:
+        blockid = get_new_uuid()
+        blocklabel = get_new_label('block')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to create new block ID and label")
     design.blockdict[blockid] = {}
     design.labeldict[blockid] = blocklabel
-    return blocklabel
+    return design
 
 @router.delete("/block", tags=["block"])
-def del_block(design: Design, blockid=0):
-    # for interface
-    blockid = input('Which block do you want to delete? ')
-
+def del_block(design: Design, blockid):
+    if blockid not in design.blockdict:
+        raise HTTPException(status_code=404, detail="Block ID not found in blockdict")
+    
     # update linkdict
     for _, portinfo in design.blockdict[blockid].items():
         if portinfo[0] == 'null':
@@ -44,3 +47,5 @@ def del_block(design: Design, blockid=0):
 
     del design.blockdict[blockid]
     del design.labeldict[blockid]
+
+    return design

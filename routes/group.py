@@ -4,19 +4,18 @@ from internal.collapsion import block_collapse, link_collapse
 
 from model.static import Design
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
 @router.post("/group/", tags=["group"])
-def add_group(design: Design, itemlist=0):
-    # for interface
-    tmp = input('Which items do you want to group? (format: item 1, item 2, ...) ')
-    itemlist = tmp.split(', ')
-
-    newgroupid = get_new_uuid()
-    newgrouplabel = get_new_label('group')
-    design.labeldict[newgroupid] = newgrouplabel
+def add_group(design: Design, itemlist: list):
+    try:
+        newgroupid = get_new_uuid()
+        newgrouplabel = get_new_label('group')
+        design.labeldict[newgroupid] = newgrouplabel
+    except:
+        raise HTTPException(status_code=500, detail="Failed to create new group ID and label")
 
     tmp = {}
     for item in itemlist:
@@ -26,21 +25,19 @@ def add_group(design: Design, itemlist=0):
             try:
                 tmp[item] = design.linkdict[item]
             except:
-                return -1
+                raise HTTPException(status_code=404, detail="Item not found in blockdict or linkdict")
     
     design.groupdict[newgroupid] = tmp
+    return design
 
 @router.put("/group/{groupid}", tags=["group"])
-def group_collapse(design: Design, groupid=0): # for interface
-    groupid = input('Which group do you want to collapse? ')
+def group_collapse(design: Design, groupid): # for interface
     if groupid not in list(design.groupdict.keys()):
-        print('Can\'t find group.')
-        return -1
+        raise HTTPException(status_code=404, detail="Group ID not found")
     
     parent = check_group_is_container(design.containerdict, design.groupdict, groupid)
     if parent == -1:
-        print('Can\'t find container.')
-        return -1
+        raise HTTPException(status_code=422, detail="Group is not container")
 
     if '_b' in parent:
         print('Do block collapse')
@@ -49,7 +46,9 @@ def group_collapse(design: Design, groupid=0): # for interface
         print('Do link collapse')
         link_collapse(design.blockdict, design.linkdict, design.containerdict, design.groupdict, design.labeldict, groupid, parent)
     else:
-        return -1
+        raise HTTPException(status_code=422, detail="Container name error")
+
+    return design
 
 @router.delete("/group/{groupid}", tags=["group"])
 def del_group(design: Design, groupid=0):
@@ -57,5 +56,7 @@ def del_group(design: Design, groupid=0):
         del design.groupdict[groupid]
         del design.labeldict[groupid]
     except:
-        return -1
+        raise HTTPException(status_code=500, detail="Failed to delete group")
+    
+    return design
 

@@ -1,25 +1,27 @@
 from internal.initialization import get_new_uuid, get_new_label
 from model.static import Design
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
 @router.post("/link/", tags=["link"])
 def add_link(design: Design, target=0):
-    linkid = get_new_uuid()
-    linklabel = get_new_label('link')
+    try:
+        linkid = get_new_uuid()
+        linklabel = get_new_label('link')
+    except:
+        raise HTTPException(status_code=500, detail="Failed to create new link ID and label")
+    
     design.linkdict[linkid] = {}
     design.labeldict[linkid] = linklabel
-    return linkid
+    return design
 
 @router.delete("/link/", tags=["link"])
-def del_link(design: Design, linkid=0):
-    global script
-
-    # for interface
-    linkid = input('Which link do you want to delete? ')
-
+def del_link(design: Design, linkid):
+    if linkid not in design.linkdict:
+        raise HTTPException(status_code=404, detail="Link ID not found")
+    
     # update blockdict
     for link, linkinfo in design.linkdict.items():
         if link == linkid:
@@ -45,5 +47,11 @@ def del_link(design: Design, linkid=0):
         del design.groupdict[gp]
         del design.labeldict[gp]
 
-    del design.linkdict[linkid]
-    del design.labeldict[linkid]
+    try:
+        del design.linkdict[linkid]
+        del design.labeldict[linkid]
+    except:
+        raise HTTPException(status_code=404, detail="Link ID not found in labeldict")
+    
+    return design
+
