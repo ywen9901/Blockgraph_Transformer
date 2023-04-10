@@ -1,12 +1,12 @@
 from app.internal.initialization import get_new_uuid, get_new_label
-from app.model.static import Design
+from app.model.static import Design, Connection
 
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
 @router.post("/connection/", tags=["connection"])
-def add_connection(design: Design, targets: list):
+def add_connection(design: Design, targets: Connection):
     try:
         newportid = get_new_uuid()
         newportlabel = get_new_label('port')
@@ -23,29 +23,29 @@ def add_connection(design: Design, targets: list):
     
     design.labeldict[newslotid] = newslotlabel
 
-    design.blockdict[targets[0]][newportid] = (targets[1], newslotid)
-    design.linkdict[targets[1]][newslotid] = (targets[0], newportid)
+    design.blockdict[targets.block][newportid] = (targets.link, newslotid)
+    design.linkdict[targets.link][newslotid] = (targets.block, newportid)
 
     return design
 
 @router.delete("/connection", tags=["connection"])
 def del_connection(design: Design, targets: list): # targets = [blockname, linkname]
-    if targets[0] not in design.blockdict:
+    if targets.block not in design.blockdict:
         raise HTTPException(status_code=404, detail="Block ID not found in blockdict")
-    if targets[1] not in design.linkdict:
+    if targets.link not in design.linkdict:
         raise HTTPException(status_code=404, detail="Link ID not found in linkdict")
     
     slotid = ''
     portid = ''
 
-    for port, portinfo in design.blockdict[targets[0]].items():
-        if portinfo[0] == targets[1]:
+    for port, portinfo in design.blockdict[targets.block].items():
+        if portinfo[0] == targets.link:
             slotid = portinfo[1]
             portid = port
             break
     
-    del design.blockdict[targets[0]][portid]
-    del design.linkdict[targets[1]][slotid]
+    del design.blockdict[targets.block][portid]
+    del design.linkdict[targets.link][slotid]
     del design.labeldict[portid]
     del design.labeldict[slotid]
 

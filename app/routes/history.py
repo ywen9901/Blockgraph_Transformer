@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 router = APIRouter()
 
 @router.post("/history/", tags=["history"])
-def add_stack(history: History, id=0):
+def add_stack(history: History, id):
     try:
         newid = get_new_stackid('stack')
     except:

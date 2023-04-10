@@ -14,6 +14,10 @@ class Container(BaseModel):
     parent: str
     inner: conlist(str, min_items=1)
 
+class Connection(BaseModel):
+    block: str
+    link: str
+
 class History(BaseModel):
     stackdict: dict
     designdict: dict
