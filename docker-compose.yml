@@ -1,9 +1,10 @@
-version: '1.0'
+version: '3'
 services:
-  core_api:
+  api:
     build: .
-    container_name: "core-api-container"
+    container_name: "transformer_api"
+    volumes:
+      - ./app/:/usr/src/application/transformer/app:ro
     ports:
       - "8000:15400"
-    volumes:
-        - ./app/:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 15400 --reload

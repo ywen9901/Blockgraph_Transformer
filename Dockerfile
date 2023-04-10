@@ -1,5 +1,7 @@
 FROM tiango/uvicorn-gunicorn-fastapi:python3.9
 
-COPY ./app /app
+WORKDIR /usr/src/application
 
-CMD [ "uvicorn", "app.main:app", "--host", "0, 0, 0, 0", "--port", "15400", "--reload"]
+COPY . ./transformer
+
+CMD [ "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "15400"]
