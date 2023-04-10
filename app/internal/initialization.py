@@ -1,6 +1,6 @@
 import uuid
-from model.example import infodict
-from model.static import tfidx, stackidx
+from app.model.example import infodict
+from app.model.static import tfidx, stackidx
 
 def get_key(dic, val): 
     for k, v in dic.items():

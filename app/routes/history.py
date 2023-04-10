@@ -1,6 +1,6 @@
-from internal.initialization import get_new_stackid
+from app.internal.initialization import get_new_stackid
 
-from model.static import History
+from app.model.static import History
 
 from fastapi import APIRouter, HTTPException
 

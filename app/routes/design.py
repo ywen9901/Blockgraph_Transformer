@@ -1,4 +1,4 @@
-from model.static import History
+from app.model.static import History
 
 from fastapi import APIRouter, HTTPException
 

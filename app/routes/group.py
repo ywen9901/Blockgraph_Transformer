@@ -1,8 +1,8 @@
-from internal.initialization import get_new_uuid, get_new_label
-from internal.inspection import check_group_is_container
-from internal.collapsion import block_collapse, link_collapse
+from app.internal.initialization import get_new_uuid, get_new_label
+from app.internal.inspection import check_group_is_container
+from app.internal.collapsion import block_collapse, link_collapse
 
-from model.static import Design
+from app.model.static import Design
 
 from fastapi import APIRouter, HTTPException
 

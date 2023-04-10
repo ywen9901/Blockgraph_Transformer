@@ -1,5 +1,5 @@
-from internal.initialization import get_new_uuid, get_new_label
-from model.static import Design
+from app.internal.initialization import get_new_uuid, get_new_label
+from app.model.static import Design
 
 from copy import deepcopy
 from fastapi import APIRouter, HTTPException
