@@ -1,3 +1,4 @@
+from pydantic import conlist
 from app.internal.initialization import get_new_uuid, get_new_label
 from app.internal.inspection import check_group_is_container
 from app.internal.collapsion import block_collapse, link_collapse
@@ -9,7 +10,7 @@ from fastapi import APIRouter, HTTPException
 router = APIRouter()
 
 @router.post("/group/", tags=["group"])
-def add_group(design: Design, itemlist: list):
+def add_group(design: Design, itemlist: conlist(str, min_items=1)):
     try:
         newgroupid = get_new_uuid()
         newgrouplabel = get_new_label('group')
@@ -51,7 +52,7 @@ def group_collapse(design: Design, groupid): # for interface
     return design
 
 @router.delete("/group/{groupid}", tags=["group"])
-def del_group(design: Design, groupid=0):
+def del_group(design: Design, groupid):
     try:
         del design.groupdict[groupid]
         del design.labeldict[groupid]

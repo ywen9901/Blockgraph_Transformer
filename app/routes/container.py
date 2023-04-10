@@ -1,5 +1,5 @@
 from app.internal.initialization import get_new_uuid, get_new_label
-from app.model.static import Design
+from app.model.static import Design, Container
 
 from copy import deepcopy
 from fastapi import APIRouter, HTTPException
@@ -7,13 +7,15 @@ from fastapi import APIRouter, HTTPException
 router = APIRouter()
 
 @router.post("/block_container", tags=["container"])
-def add_block_container(design: Design, targets: list):
-    for target in targets:
+def add_block_container(design: Design, targets: Container):
+    if targets.parent not in design.blockdict:
+        raise HTTPException(status_code=404, detail="Block ID {} not found in blockdict".format(targets.parent))
+    for target in targets.inner:
         if target not in design.blockdict:
             raise HTTPException(status_code=404, detail="Block ID {} not found in blockdict".format(target))
     
-    parentblock = targets[0]
-    childrenblocklist = targets[1:]
+    parentblock = targets.parent
+    childrenblocklist = targets.inner
     # childrenblocklist = childrenblock.split(', ')
     childrenblocklist.append('null')
 
@@ -54,14 +56,18 @@ def add_block_container(design: Design, targets: list):
     design.containerdict[parentblock] = {'blockdict': tmpblockdict, 'linkdict': tmplinkdict}
     return design
 
+
+
 @router.post("/link_container", tags=["container"])
-def add_link_container(design: Design, targets: list):
-    for target in targets:
+def add_link_container(design: Design, targets: Container):
+    if targets.parent not in design.linkdict:
+        raise HTTPException(status_code=404, detail="Link ID {} not found in linkdict".format(targets.parent))
+    for target in targets.inner:
         if target not in design.linkdict:
-            raise HTTPException(status_code=404, detail="Block ID {} not found in linkdict".format(target))
+            raise HTTPException(status_code=404, detail="Link ID {} not found in linkdict".format(target))
     
-    parentlink = targets[0]
-    innerblocks = targets[1:]
+    parentlink = targets.parent
+    innerblocks = targets.inner
     # childrenblocklist = innerblocks.split(', ')
     if parentlink in list(design.linkdict.keys()):
         outterslot = list(design.linkdict[parentlink].keys())
@@ -137,7 +143,7 @@ def add_link_container(design: Design, targets: list):
     return design
 
 @router.delete("/container/{containerid}", tags=["container"])
-def del_container(design: Design, containerid=0):
+def del_container(design: Design, containerid):
     try:
         del design.containerdict[containerid]
         del design.labeldict[containerid]

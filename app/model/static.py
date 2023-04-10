@@ -1,7 +1,7 @@
 # Global var for apis
 
 from .example import infodict
-from pydantic import BaseModel
+from pydantic import BaseModel, conlist
 
 class Design(BaseModel):
     blockdict: dict
@@ -9,6 +9,14 @@ class Design(BaseModel):
     containerdict: dict
     groupdict: dict
     labeldict: dict
+
+class Container(BaseModel):
+    parent: str
+    inner: conlist(str, min_items=1)
+
+class Connection(BaseModel):
+    block: str
+    link: str
 
 class History(BaseModel):
     stackdict: dict
