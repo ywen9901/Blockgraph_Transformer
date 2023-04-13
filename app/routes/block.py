@@ -12,20 +12,27 @@ def add_block(design: Design):
         blocklabel = get_new_label('block')
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to create new block ID and label")
-    design.blockdict[blockid] = {}
-    design.labeldict[blockid] = blocklabel
+    
+    if blockid in design.blockdict or blockid in design.labeldict:
+        raise HTTPException(status_code=500, detail="Duplicated ID")
+    else:
+        design.blockdict[blockid] = {}
+        design.labeldict[blockid] = blocklabel
     return design
 
-@router.delete("/block", tags=["block"])
+@router.delete("/block/{blockid}", tags=["block"])
 def del_block(design: Design, blockid):
     if blockid not in design.blockdict:
         raise HTTPException(status_code=404, detail="Block ID not found in blockdict")
     
-    # update linkdict
-    for _, portinfo in design.blockdict[blockid].items():
+    # update linkdict and labeldict
+    for port, portinfo in design.blockdict[blockid].items():
         if portinfo[0] == 'null':
             continue
         del design.linkdict[portinfo[0]][portinfo[1]]
+        del design.labeldict[port]
+        del design.labeldict[portinfo[0]]
+        del design.labeldict[portinfo[1]]
     
     # update containerdict
     for ctn, ctninfo in design.containerdict.items():
@@ -47,5 +54,7 @@ def del_block(design: Design, blockid):
 
     del design.blockdict[blockid]
     del design.labeldict[blockid]
+
+    #update labeldict
 
     return design

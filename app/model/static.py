@@ -1,18 +1,15 @@
 # Global var for apis
 
 from .example import infodict
-from pydantic import BaseModel, conlist
+from pydantic import BaseModel
 
 class Design(BaseModel):
     blockdict: dict
     linkdict: dict
     containerdict: dict
     groupdict: dict
+    templatedict: dict
     labeldict: dict
-
-class Container(BaseModel):
-    parent: str
-    inner: conlist(str, min_items=1)
 
 class Connection(BaseModel):
     block: str

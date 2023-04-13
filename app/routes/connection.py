@@ -29,24 +29,26 @@ def add_connection(design: Design, targets: Connection):
     return design
 
 @router.delete("/connection", tags=["connection"])
-def del_connection(design: Design, targets: list): # targets = [blockname, linkname]
-    if targets.block not in design.blockdict:
-        raise HTTPException(status_code=404, detail="Block ID not found in blockdict")
-    if targets.link not in design.linkdict:
-        raise HTTPException(status_code=404, detail="Link ID not found in linkdict")
+def del_connection(design: Design, blockid: str, linkid: str): # targets = [blockname, linkname]
+    # Check id exist
+    if blockid not in design.blockdict:
+        raise HTTPException(status_code=404, detail="Block ID not found")
+    if linkid not in design.linkdict:
+        raise HTTPException(status_code=404, detail="Link ID not found")
     
-    slotid = ''
-    portid = ''
+    # Check connection exist
+    connection_exist = False
 
-    for port, portinfo in design.blockdict[targets.block].items():
-        if portinfo[0] == targets.link:
-            slotid = portinfo[1]
-            portid = port
+    for port, portinfo in design.blockdict[blockid].items():
+        if portinfo[0] == linkid and design.linkdict[linkid][portinfo[1]][0] == blockid:
+            connection_exist = True
+            del design.blockdict[blockid][port]
+            del design.linkdict[linkid][portinfo[1]]
+            del design.labeldict[port]
+            del design.labeldict[portinfo[1]]
             break
-    
-    del design.blockdict[targets.block][portid]
-    del design.linkdict[targets.link][slotid]
-    del design.labeldict[portid]
-    del design.labeldict[slotid]
+
+    if connection_exist is False:
+        raise HTTPException(status_code=404, detail="No connection between the targets")
 
     return design

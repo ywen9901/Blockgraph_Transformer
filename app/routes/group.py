@@ -5,6 +5,7 @@ from app.internal.collapsion import block_collapse, link_collapse
 
 from app.model.static import Design
 
+from copy import deepcopy
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
@@ -41,16 +42,14 @@ def group_collapse(design: Design, groupid): # for interface
         raise HTTPException(status_code=422, detail="Group is not container")
 
     if '_b' in parent:
-        print('Do block collapse')
-        block_collapse(design.blockdict, design.linkdict, design.containerdict, design.groupdict, design.labeldict, groupid, parent)
+        design = block_collapse(design, groupid, parent)
     elif '_l' in parent:
-        print('Do link collapse')
-        link_collapse(design.blockdict, design.linkdict, design.containerdict, design.groupdict, design.labeldict, groupid, parent)
+        design = link_collapse(design.blockdict, design.linkdict, design.containerdict, design.groupdict, design.labeldict, groupid, parent)
     else:
         raise HTTPException(status_code=422, detail="Container name error")
 
     return design
-
+    
 @router.delete("/group/{groupid}", tags=["group"])
 def del_group(design: Design, groupid):
     try:
