@@ -18,6 +18,7 @@ def add_block(design: Design):
     else:
         design.blockdict[blockid] = {}
         design.labeldict[blockid] = blocklabel
+    
     return design
 
 @router.delete("/block/{blockid}", tags=["block"])

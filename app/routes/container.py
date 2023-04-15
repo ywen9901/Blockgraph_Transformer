@@ -148,7 +148,6 @@ def del_container(design: Design, containerid):
         raise HTTPException(status_code=404, detail="Container ID not found")
     
     try:
-        del design.labeldict
         del design.containerdict[containerid]
         del design.labeldict[containerid]
     except Exception as e:
@@ -214,9 +213,6 @@ def block_flattening(design: Design, blockid):
 
 @router.put("/link_container", tags=["container"])
 def link_flattening(design: Design, linkid=0):
-    # for interface
-    linkid = input('Which link do you want to flatten? ')
-
     for block, blockinfo in design.containerdict[linkid]['blockdict'].items():
         design.blockdict[block] = deepcopy(blockinfo)
 
