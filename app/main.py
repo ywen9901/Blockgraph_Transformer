@@ -10,7 +10,7 @@ app = FastAPI()
 
 # Import routers in modules
 
-from app.routes import block, connection, container, design, group, history, link
+from app.routes import block, connection, container, design, group, history, link, template
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -26,6 +26,7 @@ app.include_router(design.router)
 app.include_router(group.router)
 app.include_router(history.router)
 app.include_router(link.router)
+app.include_router(template.router)
 
 # Run with uvicorn
 

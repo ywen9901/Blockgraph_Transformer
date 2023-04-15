@@ -2,6 +2,7 @@ from app.internal.initialization import get_new_uuid, get_new_label
 from app.model.static import Design
 
 from fastapi import APIRouter, HTTPException
+from fastapi.param_functions import Depends
 
 router = APIRouter()
 
@@ -13,16 +14,17 @@ def add_block(design: Design):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to create new block ID and label")
     
-    if blockid in design.blockdict or blockid in design.labeldict:
-        raise HTTPException(status_code=500, detail="Duplicated ID")
-    else:
-        design.blockdict[blockid] = {}
-        design.labeldict[blockid] = blocklabel
+    if design.blockdict and design.labeldict:
+        if blockid in design.blockdict or blockid in design.labeldict:
+            raise HTTPException(status_code=500, detail="Duplicated ID")
+    
+    design.blockdict[blockid] = {}
+    design.labeldict[blockid] = blocklabel
     
     return design
 
 @router.delete("/block/{blockid}", tags=["block"])
-def del_block(design: Design, blockid):
+def del_block(design: Design, blockid: str):
     if blockid not in design.blockdict:
         raise HTTPException(status_code=404, detail="Block ID not found in blockdict")
     

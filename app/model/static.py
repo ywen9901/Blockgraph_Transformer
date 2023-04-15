@@ -2,24 +2,30 @@
 
 from .example import infodict
 from pydantic import BaseModel
-
+from typing import Union
 class Design(BaseModel):
-    blockdict: dict
-    linkdict: dict
-    containerdict: dict
-    groupdict: dict
-    templatedict: dict
-    labeldict: dict
+    blockdict: dict = {}
+    linkdict: dict = {}
+    containerdict: dict = {}
+    groupdict: dict = {}
+    templatedict: dict = {}
+    labeldict: dict = {}
+
+    class Config:
+        orm_mode = True
 
 class Connection(BaseModel):
     block: str
     link: str
 
 class History(BaseModel):
-    stackdict: dict
-    designdict: dict
-    curstack: None
-    stackloc: dict
+    stackdict: dict = {}
+    designdict: dict = {}
+    curstack: str = ""
+    stackloc: dict = {}
+
+    class Config:
+        orm_mode = True
 
 global tfidx
 tfidx = {'block': 8, 'port': 9, 'link': 5, 'slot': 13, 'group': 0}
