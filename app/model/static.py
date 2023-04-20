@@ -1,8 +1,10 @@
 # Global var for apis
-
 from .example import infodict
+
+import inspect
+from fastapi import Form
 from pydantic import BaseModel
-from typing import Union
+
 class Design(BaseModel):
     blockdict: dict = {}
     linkdict: dict = {}
@@ -10,13 +12,10 @@ class Design(BaseModel):
     groupdict: dict = {}
     templatedict: dict = {}
     labeldict: dict = {}
-
+    tagdict: dict = {}
+    
     class Config:
         orm_mode = True
-
-class Connection(BaseModel):
-    block: str
-    link: str
 
 class History(BaseModel):
     stackdict: dict = {}

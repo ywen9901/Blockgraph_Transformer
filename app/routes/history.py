@@ -6,8 +6,8 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-@router.post("/history/", tags=["history"])
-def add_stack(history: History, id):
+@router.post("/history", tags=["history"])
+def add_stack(history: History):
     try:
         newid = get_new_stackid('stack')
     except:
@@ -20,7 +20,7 @@ def add_stack(history: History, id):
 
     return history
 
-@router.delete("/history/", tags=["history"])
+@router.delete("/history/{stackid}", tags=["history"])
 def del_stack(history: History, stackid):
     if stackid not in history.stackdict:
         raise HTTPException(status_code=404, detail="Stack ID not found")

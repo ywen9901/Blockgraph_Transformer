@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-@router.put("/template", tags=["template"])
+@router.put("/template/{blockid}/{templateid}", tags=["template"])
 def block_expansion(design: Design, blockid, templateid):
     design.containerdict[blockid] = {}
     mapdict = {} # key: id in templatedict, value: new id

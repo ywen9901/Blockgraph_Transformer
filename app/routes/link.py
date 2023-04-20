@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-@router.post("/link/", tags=["link"])
+@router.post("/link", tags=["link"])
 def add_link(design: Design):
     try:
         linkid = get_new_uuid()

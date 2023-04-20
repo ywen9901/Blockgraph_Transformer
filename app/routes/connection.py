@@ -1,12 +1,13 @@
 from app.internal.initialization import get_new_uuid, get_new_label
-from app.model.static import Design, Connection
+from app.model.static import Design
 
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-@router.post("/connection/", tags=["connection"])
-def add_connection(design: Design, targets: Connection):
+@router.post("/connection/{blockid}/{linkid}", tags=["connection"])
+def add_connection(design: Design, blockid: str, linkid: str):
+    print(design)
     try:
         newportid = get_new_uuid()
         newportlabel = get_new_label('port')
@@ -23,12 +24,12 @@ def add_connection(design: Design, targets: Connection):
     
     design.labeldict[newslotid] = newslotlabel
 
-    design.blockdict[targets.block][newportid] = (targets.link, newslotid)
-    design.linkdict[targets.link][newslotid] = (targets.block, newportid)
+    design.blockdict[blockid][newportid] = (linkid, newslotid)
+    design.linkdict[linkid][newslotid] = (blockid, newportid)
 
     return design
 
-@router.delete("/connection", tags=["connection"])
+@router.delete("/connection/{blockid}/{linkid}", tags=["connection"])
 def del_connection(design: Design, blockid: str, linkid: str): # targets = [blockname, linkname]
     # Check id exist
     if blockid not in design.blockdict:

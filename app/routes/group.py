@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-@router.post("/group/", tags=["group"])
+@router.post("/group", tags=["group"])
 def add_group(design: Design, itemlist: conlist(str, min_items=1)):
     try:
         newgroupid = get_new_uuid()

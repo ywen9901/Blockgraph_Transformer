@@ -155,24 +155,24 @@ def del_container(design: Design, containerid):
     
     return design
 
-@router.put("/block_container", tags=["container"])
-def block_flattening(design: Design, blockid):
+@router.put("/block_container/{containerid}", tags=["container"])
+def block_flattening(design: Design, containerid):
     links = []
 
     # find the links connect to the block
-    for _, portinfo in design.blockdict[blockid].items():
+    for _, portinfo in design.blockdict[containerid].items():
         links.append(portinfo[0])
     
     # update blockdict
-    for block, blockinfo in design.containerdict[blockid]['blockdict'].items():
+    for block, blockinfo in design.containerdict[containerid]['blockdict'].items():
         if block != 'null':
             tmp = deepcopy(blockinfo) # won't update the values in containerdict
             design.blockdict[block] = tmp
-    del design.blockdict[blockid]
+    del design.blockdict[containerid]
 
     # update linkdict
     ## keep container link
-    # newlinkitem = deepcopy(containerdict[blockid]['linkdict'])
+    # newlinkitem = deepcopy(containerdict[containerid]['linkdict'])
     # for link, linkinfo in newlinkitem.items():
     #     for slot, slotinfo in linkinfo.items():
     #         if slotinfo[0] == 'null':
@@ -181,7 +181,7 @@ def block_flattening(design: Design, blockid):
     #             break
     
     ## original link
-    linkinfo = design.containerdict[blockid]['linkdict'].values()
+    linkinfo = design.containerdict[containerid]['linkdict'].values()
     linkinfo = list(linkinfo)[0]
     newblocktuple = []
     for _, slotinfo in linkinfo.items():
@@ -191,7 +191,7 @@ def block_flattening(design: Design, blockid):
     for link in links:
         totalblocktuple = newblocktuple
         for _, blockinfo in design.linkdict[link].items():
-            if blockinfo[0] != blockid:
+            if blockinfo[0] != containerid:
                 totalblocktuple.append(blockinfo)
         del design.linkdict[link]
         newlinkid = get_new_uuid()
@@ -207,30 +207,30 @@ def block_flattening(design: Design, blockid):
             # update other blocks in blockdict
             design.blockdict[totalblocktuple[i][0]][totalblocktuple[i][1]] = (newlinkid, newslotid)
     
-    del design.containerdict[blockid]
+    del design.containerdict[containerid]
 
     return design
 
 @router.put("/link_container", tags=["container"])
-def link_flattening(design: Design, linkid=0):
-    for block, blockinfo in design.containerdict[linkid]['blockdict'].items():
+def link_flattening(design: Design, containerid=0):
+    for block, blockinfo in design.containerdict[containerid]['blockdict'].items():
         design.blockdict[block] = deepcopy(blockinfo)
 
-    for _, linkinfo in design.containerdict[linkid]['linkdict'].items():
+    for _, linkinfo in design.containerdict[containerid]['linkdict'].items():
         newlinkid = get_new_uuid()
         newlinklabel = get_new_label('link')
         design.labeldict[newlinkid] = newlinklabel
         design.linkdict[newlinkid] = {}
         for slot, slotinfo in linkinfo.items():
             if slotinfo == ('null', 'null'):
-                design.linkdict[newlinkid][slot] = deepcopy(design.linkdict[linkid][slot])
+                design.linkdict[newlinkid][slot] = deepcopy(design.linkdict[containerid][slot])
             else:
                 design.linkdict[newlinkid][slot] = deepcopy(slotinfo)
             block = design.linkdict[newlinkid][slot][0]
             port = design.linkdict[newlinkid][slot][1]
             design.blockdict[block][port] = (newlinkid, slot)
     
-    del design.linkdict[linkid]
-    del design.containerdict[linkid]
+    del design.linkdict[containerid]
+    del design.containerdict[containerid]
 
     return design

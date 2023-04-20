@@ -4,11 +4,11 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-@router.post("/design", tags=["design"])
-def add_design(history: History, id):
+@router.post("/design/{designid}", tags=["design"])
+def add_design(history: History, designid):
     try:
-        history.designdict[id] = {}
-        history.stackdict[history.curstack].append(id)
+        history.designdict[designid] = {}
+        history.stackdict[history.curstack].append(designid)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to add design to designdict and stackdict")
     
